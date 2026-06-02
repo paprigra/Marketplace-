@@ -1,0 +1,4 @@
+{
+  "buildCommand": "npx tsx scripts/migrate-turso.ts && next build",
+  "framework": "nextjs"
+}
