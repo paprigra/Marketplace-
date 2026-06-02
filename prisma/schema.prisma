@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  fbId      String?  @unique
+  email     String?  @unique
+  password  String?
+  name      String
+  phone     String?
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+
+  dealsAsBuyer  Deal[] @relation("BuyerDeals")
+  dealsAsSeller Deal[] @relation("SellerDeals")
+  chatMessages  ChatMessage[]
+}
+
+model Deal {
+  id          String   @id @default(cuid())
+  shortId     String   @unique
+  itemName    String
+  description String?
+  amount      Float
+  fee         Float    @default(0)
+  status      String   @default("waiting_payment")
+  buyerId     String?
+  sellerId    String?
+  buyerName   String?
+  sellerName  String?
+  buyerPhone  String?
+  sellerPhone String?
+  trackingNo  String?
+  note        String?
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  paidAt      DateTime?
+  shippedAt   DateTime?
+  completedAt DateTime?
+
+  buyer  User? @relation("BuyerDeals", fields: [buyerId], references: [id])
+  seller User? @relation("SellerDeals", fields: [sellerId], references: [id])
+}
+
+model FeeConfig {
+  id        String   @id @default(cuid())
+  minAmount Float
+  maxAmount Float?
+  feeType   String   // "fixed" | "percent"
+  feeValue  Float
+  order     Int
+  updatedAt DateTime @updatedAt
+
+  @@unique([minAmount, maxAmount])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  userId    String?
+  fbUserId  String?
+  role      String
+  content   String
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?
+  fbUserId  String?
+  title     String
+  message   String
+  type      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
